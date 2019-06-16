@@ -8,14 +8,14 @@ from slacker import Slacker
 
 from flask import Flask, request, make_response
 
-import json
+import json, os
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
 # Flask web server for incoming traffic from Slack
 app = Flask(__name__)
 
-slack = Slacker('xoxb-640031068547-650977333556-6XhPt6S3jjz4ztLJnvrEL93F')
+slack = Slacker(os.environ['app-token'])
 
 # Get users list
 response = slack.users.list()
@@ -36,6 +36,7 @@ def message_actions():
     return make_response("", 200)
 
 def ask():
+    """Send users question"""
     slack.chat.post_message(channel = '@kuster', as_user = True, text = 'Pick an item from the dropdown list', blocks = '[     {    "type": "section",    "text": {    "type": "mrkdwn",    "text": "Pick an item from the dropdown list"    },    "accessory": {    "type": "static_select",    "placeholder": {    "type": "plain_text",    "text": "Select an item",    "emoji": true    },    "options": [    {    "text": {    "type": "plain_text",    "text": "Choice 1",    "emoji": true    },    "value": "value-0"    },    {    "text": {    "type": "plain_text",    "text": "Choice 2",    "emoji": true    },    "value": "value-1"    },    {    "text": {    "type": "plain_text",    "text": "Choice 3",    "emoji": true    },    "value": "value-2"    }    ]    }     } ]')
 
 if __name__ == "__main__":
