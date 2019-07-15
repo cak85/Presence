@@ -17,9 +17,11 @@ app = Flask(__name__)
 
 slack = Slacker(os.environ['app-token'])
 
-# Get users list
-response = slack.users.list()
-users = response.body['members']
+
+# retrieve users
+users = []
+for member in filter(lambda x: x['id'] != 'USLACKBOT' and not x['is_bot'] and not x['deleted'], slack.users.list().body['members']):
+    users.append(member['name'])
 
 #slack.dialog.open('[     {    "type": "section",    "text": {    "type": "mrkdwn",    "text": "Pick an item from the dropdown list"    },    "accessory": {    "type": "static_select",    "placeholder": {    "type": "plain_text",    "text": "Select an item",    "emoji": true    },    "options": [    {    "text": {    "type": "plain_text",    "text": "Choice 1",    "emoji": true    },    "value": "value-0"    },    {    "text": {    "type": "plain_text",    "text": "Choice 2",    "emoji": true    },    "value": "value-1"    },    {    "text": {    "type": "plain_text",    "text": "Choice 3",    "emoji": true    },    "value": "value-2"    }    ]    }     } ]', 39393)
 
