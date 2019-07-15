@@ -41,6 +41,7 @@ def ask():
 
 if __name__ == "__main__":
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=ask, trigger='cron', second='0')
+#     scheduler.add_job(func=ask, trigger='cron', day_of_week='fri', hour='9', minute='30')
+    scheduler.add_job(func=ask, trigger='cron', minute='*/2')
     scheduler.start()
     app.run(debug=True, use_reloader=False, host='0.0.0.0')
