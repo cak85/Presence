@@ -4,11 +4,11 @@ Created on 31.05.2019
 @author: Christian Kuster
 '''
 
-from slacker import Slacker
+from slacker import Slacker#, Bots
 
 from flask import Flask, request, make_response
 
-import json, os
+import json, os, datetime#, locale
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -17,6 +17,7 @@ app = Flask(__name__)
 
 slack = Slacker(os.environ['app-token'])
 
+places = ["Köln", "Münster", "Remote"]
 
 # retrieve users
 users = []
@@ -39,7 +40,51 @@ def message_actions():
 
 def ask():
     """Send users question"""
-    slack.chat.post_message(channel = '@kuster', as_user = True, text = 'Pick an item from the dropdown list', blocks = '[     {    "type": "section",    "text": {    "type": "mrkdwn",    "text": "Pick an item from the dropdown list"    },    "accessory": {    "type": "static_select",    "placeholder": {    "type": "plain_text",    "text": "Select an item",    "emoji": true    },    "options": [    {    "text": {    "type": "plain_text",    "text": "Choice 1",    "emoji": true    },    "value": "value-0"    },    {    "text": {    "type": "plain_text",    "text": "Choice 2",    "emoji": true    },    "value": "value-1"    },    {    "text": {    "type": "plain_text",    "text": "Choice 3",    "emoji": true    },    "value": "value-2"    }    ]    }     } ]')
+    
+    d = datetime.date.today()
+    dow = []
+    for x in range(3, 8):
+        dow.append((d + datetime.timedelta(days=x)).strftime("%A - %x"))
+    
+    blocks_object = [{
+            "type": "section",
+            "text": {
+                "type": "plain_text",
+                "text": "Hi!\nWhere will you be working next week?",
+                "emoji": True
+            }
+        }]
+    
+    place_options = []
+    for place in places:
+        place_options.append({
+                "text": {
+                    "type": "plain_text",
+                    "text": place,
+                    "emoji": True
+                },
+                "value": place
+            })
+    
+    for day in dow:
+        blocks_object.append({
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "*" + day + "*"
+                },
+                "accessory": {
+                    "type": "static_select",
+                    "placeholder": {
+                        "type": "plain_text",
+                        "text": "Select an item",
+                        "emoji": True
+                    },
+                    "options": place_options
+                }
+            })
+    
+    slack.chat.post_message(channel = '@kuster', as_user = True, text = 'Where will you be working next week?', blocks = json.dumps(blocks_object))
 
 if __name__ == "__main__":
     scheduler = BackgroundScheduler()
